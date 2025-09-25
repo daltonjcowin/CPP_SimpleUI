@@ -27,6 +27,8 @@ It eliminates boilerplate switch statements and input loops so you can focus on 
 
 • Minimal dependencies (standard C++ & OS APIs)
 
+Note: Requires C++11 or greater.
+
 # Example
 ```
 #include "SimpleUI.hpp"
@@ -37,49 +39,54 @@ using namespace std;
 struct Config {
   int traffic_density = 2;
   bool dedicated_left = false;
-  string street_name = "Hollywood Blvd."
+  string street_name = "Hollywood Blvd.";
 };
 Config config;
 
 void run() {
-  ...
+  cout << "Simulation running.\n";
 }
 
 int main() {
-  QuickMenu main_menu;
-  SubQuickMenu density_menu, left_menu, name_menu;
-  main_menu
-    .title("Main Menu")
-    .option("Run simulation", &run)
-    .submenu("Traffic density", density_menu)
-    .submenu("Dedicated left turn lane", left_menu)
-    .submenu("Street name", name_menu");
-  density_menu
-    .title("Set Traffic Density")
-    .header([]{
-      cout << "Current: << density_menu.get_title(config.traffic_density);
-    })
-    .option("Light", []{ config.traffic_density = 0; })
-    .option("Moderate", []{ config.traffic_density = 1; })
-    .option("Heavy", []{ config.traffic_density = 2; });
-  left_menu
-    .title("Enable Dedicated Left Turn Lane?")
-    .header([]{
-      cout << "Current: " << (config.dedicated_left ? "Enabled" : "Disabled");
-    })
-    .option("Enable", []{ config.dedicated_left = true; })
-    .option("Disable", []{ config.dedicated_left = false; });
-  name_menu
-    .title("Set Street Name")
-    .header([]{ cout << "Current: " << config.street_name })
-    .option("Change", []{
-      Prompt name("New name (16 characters max)", [](string input){ return input <= 16; })"
-      config.street_name = name.get();
-    })
+    QuickMenu main_menu;
+    SubQuickMenu density_menu, left_menu, name_menu;
 
-  main_menu.run();
-  return 0;
+    main_menu
+        .title("Main Menu")
+        .option("Run simulation", &run)
+        .submenu("Traffic density", density_menu)
+        .submenu("Dedicated left turn lane", left_menu)
+        .submenu("Street name", name_menu);
+
+    density_menu
+        .title("Set Traffic Density")
+        .header([&]{
+            cout << "Current: " << density_menu.get_title(config.traffic_density + 1);
+        })
+        .option("Light", []{ config.traffic_density = 0; })
+        .option("Moderate", []{ config.traffic_density = 1; })
+        .option("Heavy", []{ config.traffic_density = 2; });
+
+    left_menu
+        .title("Enable Dedicated Left Turn Lane?")
+        .header([]{
+            cout << "Current: " << (config.dedicated_left ? "Enabled" : "Disabled");
+        })
+        .option("Enable", []{ config.dedicated_left = true; })
+        .option("Disable", []{ config.dedicated_left = false; });
+
+    name_menu
+        .title("Set Street Name")
+        .header([]{ cout << "Current: " << config.street_name; })
+        .option("Change", []{
+            Prompt name("New name (16 characters max)", [](string input){ return input.length() <= 16; });
+            config.street_name = name.get();
+        });
+
+    main_menu.run();
+    return 0;
 }
+
 ```
 Main QuickMenu
 ```
